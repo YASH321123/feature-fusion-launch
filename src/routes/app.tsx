@@ -1,15 +1,19 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { ClientOnly, createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { Brand, Btn } from "@/components/Brand";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Button } from "@/components/ui/button";
 import { importGithubRepo } from "@/lib/github.functions";
 import { extractZip, type FileMap } from "@/lib/zip";
 import { answer, buildQuiz, demoFiles, explainFile, fileIcon, graph, langOf, review, ext, type Level } from "@/lib/mentor";
 
+const LivePreview = lazy(() => import("@/components/LivePreview"));
 const TABS = {
   overview: ["▦", "Overview", "Project overview", "A guided tour of your project."],
   files: ["⌘", "File explorer", "File explorer", "Browse the source and learn what each file does."],
+  preview: ["▷", "Live preview", "Live preview", ""],
   chat: ["✳", "Ask your code", "Ask your code", "A project-aware helper for your code questions."],
   graph: ["⌁", "Dependency map", "Dependency map", "Explore import relationships in this project."],
   review: ["⌕", "Code review", "Code review", "Potential issues to investigate — not guaranteed bugs."],
@@ -93,7 +97,8 @@ function Workspace() {
       <header className="sticky top-0 z-10 border-b border-border/40 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between px-6">
           <Brand />
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Link to="/"><Btn>← Home</Btn></Link>
             <Btn variant="primary" onClick={() => go("import")}>＋ Import</Btn>
           </div>
@@ -108,9 +113,9 @@ function Workspace() {
         <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
           <aside className="flex gap-1 overflow-auto rounded-xl border border-border bg-card p-3 md:block">
             {(Object.keys(TABS) as Tab[]).map((t) => (
-              <button key={t} onClick={() => go(t)} className={`flex w-full min-w-max items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition ${tab === t ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent"}`}>
+              <Button variant="ghost" key={t} onClick={() => go(t)} className={`h-auto w-full min-w-max justify-start gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition ${tab === t ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent"}`}>
                 <span className="w-4 text-center">{TABS[t][0]}</span>{TABS[t][1]}
-              </button>
+              </Button>
             ))}
             <div className="mt-4 hidden border-t border-border pt-4 md:block">
               <div className="px-2 text-[10px] tracking-widest text-muted-foreground">CURRENT PROJECT</div>
@@ -122,6 +127,7 @@ function Workspace() {
           <main className="min-w-0">
             {tab === "overview" && <Overview {...ctx} />}
             {tab === "files" && <Files {...ctx} setCurrent={setCurrent} />}
+            {tab === "preview" && <ClientOnly fallback={<p className="text-muted-foreground">Loading preview…</p>}><Suspense fallback={<p className="text-muted-foreground">Loading preview…</p>}><LivePreview files={files} /></Suspense></ClientOnly>}
             {tab === "chat" && <Chat {...ctx} chat={chat} />}
             {tab === "graph" && <Graph {...ctx} />}
             {tab === "review" && <Review files={files} />}
@@ -415,7 +421,7 @@ function Import({ onLoad }: { onLoad: (f: FileMap, n: string) => void }) {
             <input ref={input} type="file" accept=".zip" hidden onChange={(e) => handleZip(e.target.files?.[0])} />
           </div>
           {zipMsg && <p className="mt-3 text-sm text-muted-foreground">{zipMsg}</p>}
-          <p className="mt-3 text-xs text-muted-foreground">Files are read in your browser and never executed.</p>
+          <p className="mt-3 text-xs text-muted-foreground">Files are read in your browser. Execution only starts when you choose Run live preview.</p>
         </div>
       </Panel>
     </div>
