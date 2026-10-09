@@ -32,7 +32,7 @@ const langs = ["TypeScript", "JavaScript", "Python", "Go", "Rust", "Java", "C / 
 
 function Landing() {
   const nav = useNavigate();
-  const open = (tab: string) => nav({ to: "/app", search: { tab } });
+  const open = (tab: "overview" | "import") => nav({ to: "/app", search: { tab } });
   return (
     <div>
       <header className="sticky top-0 z-10 border-b border-border/40 bg-background/80 backdrop-blur-xl">
