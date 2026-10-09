@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- GitHub import downloads the repo ZIP from codeload.github.com in a server function (src/lib/github.functions.ts) — avoids browser CORS and GitHub API rate limits.
+- noUncheckedIndexedAccess is off in tsconfig — the code analysis helpers index file maps heavily.
