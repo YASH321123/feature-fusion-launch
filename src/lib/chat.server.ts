@@ -23,7 +23,7 @@ function buildContext(b: Body) {
 }
 
 export async function handleChat(request: Request): Promise<Response> {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return new Response("AI is not configured.", { status: 500 });
   let body: Body;
   try { body = await request.json(); } catch { return new Response("Bad request", { status: 400 }); }
