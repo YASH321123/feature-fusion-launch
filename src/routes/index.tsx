@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Brand, Btn } from "@/components/Brand";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -43,7 +44,7 @@ function Landing() {
             <a href="#how" className="hover:text-foreground">How it works</a>
             <a href="#languages" className="hover:text-foreground">Languages</a>
           </nav>
-          <Btn variant="primary" onClick={() => open("overview")}>Get started ↗</Btn>
+          <div className="flex items-center gap-2"><ThemeToggle /><Btn variant="primary" onClick={() => open("overview")}>Get started ↗</Btn></div>
         </div>
       </header>
 
