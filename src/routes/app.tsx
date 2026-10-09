@@ -305,7 +305,7 @@ function Learn({ files, isDemo }: { files: FileMap; isDemo: boolean }) {
   const [i, setI] = useState(0);
   const [pick, setPick] = useState<number | null>(null);
   const [score, setScore] = useState(0);
-  const q = quiz[i % quiz.length];
+  const q = quiz[i % quiz.length]!;
   return (
     <Panel title="◉  Quiz" right={<Tag ok>Score {score} / {i + (pick !== null ? 1 : 0)}</Tag>}>
       <div className="p-5">

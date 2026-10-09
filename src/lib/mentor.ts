@@ -97,7 +97,7 @@ export function review(files: FileMap): Finding[] {
 }
 
 export function graph(files: FileMap) {
-  const names = Object.keys(files).filter((f) => /\.(tsx?|jsx?|mjs|py|vue|svelte)$/.test(f)).slice(0, 24);
+  const names = Object.keys(files).filter((f) => /\.(tsx?|jsx?|mjs|py|vue|svelte)$/.test(f) && !/(test|spec|config)\./.test(f)).slice(0, 24);
   const edges: [string, string][] = [];
   for (const a of names) {
     const dir = a.split("/").slice(0, -1).join("/");
