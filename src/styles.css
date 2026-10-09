@@ -96,3 +96,13 @@
 }
 @utility bg-gradient-primary { background: var(--gradient-primary); }
 @utility shadow-glow { box-shadow: var(--shadow-glow); }
+
+.mentor-md h1, .mentor-md h2, .mentor-md h3 { font-weight: 700; margin: 1rem 0 .4rem; color: var(--foreground); }
+.mentor-md h1 { font-size: 1.25rem; } .mentor-md h2 { font-size: 1.1rem; } .mentor-md h3 { font-size: 1rem; }
+.mentor-md p { margin: .4rem 0; }
+.mentor-md ul, .mentor-md ol { padding-left: 1.25rem; margin: .4rem 0; }
+.mentor-md ul { list-style: disc; } .mentor-md ol { list-style: decimal; }
+.mentor-md code { font-family: var(--font-mono); font-size: .85em; background: var(--code); padding: .1rem .3rem; border-radius: .3rem; color: var(--accent-foreground); }
+.mentor-md pre { background: var(--code); padding: .75rem; border-radius: .5rem; overflow: auto; margin: .5rem 0; }
+.mentor-md pre code { background: none; padding: 0; }
+.mentor-md strong { color: var(--foreground); }

@@ -52,9 +52,37 @@ function Workspace() {
     toast.success(`Loaded ${Object.keys(f).length} files from ${n}`);
     go("overview");
   };
-  const ask = (q: string) => {
-    setChat((c) => [...c, { role: "user", text: q }, { role: "bot", text: answer(q, files, current, isDemo) }]);
+  const [busy, setBusy] = useState(false);
+  const ask = async (q: string) => {
+    if (busy) return;
     go("chat");
+    const history = [...chat, { role: "user" as const, text: q }];
+    setChat([...history, { role: "bot", text: "" }]);
+    setBusy(true);
+    const setLast = (text: string) => setChat((c) => [...c.slice(0, -1), { role: "bot", text }]);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          files, projectName: name, current,
+          messages: history.filter((m) => m.text).map((m) => ({ role: m.role === "bot" ? "assistant" : "user", content: m.text })),
+        }),
+      });
+      if (!res.ok || !res.body) throw new Error(await res.text());
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      let out = "";
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        out += dec.decode(value, { stream: true });
+        setLast(out);
+      }
+      if (!out.trim()) setLast(answer(q, files, current, isDemo));
+    } catch {
+      setLast(`⚠️ The AI couldn't be reached, so here's a quick local answer:\n\n${answer(q, files, current, isDemo)}`);
+    } finally { setBusy(false); }
   };
   const openFile = (f: string) => { setCurrent(f); go("files"); };
   const ctx = { files, current, isDemo, openFile, ask, go };
@@ -237,11 +265,15 @@ function Chat({ chat, ask }: Ctx & { chat: Msg[] }) {
   const qs = ["Explain this project in simple English.", "Which files should I understand first?", "Where is the login logic implemented?", "How does the frontend communicate with the backend?", "Find potential bugs in this code."];
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-      <Panel title="✳  Codebase Mentor" right={<Tag>Local assistant</Tag>}>
-        <div className="flex h-[440px] flex-col gap-3 overflow-auto p-4">
-          {!chat.length && <div className="max-w-[85%] rounded-xl bg-secondary p-3 text-sm">Hey! 👋 Ask me about any loaded file, where to start, APIs, login logic, or potential bugs.</div>}
-          {chat.map((m, i) => (
-            <div key={i} className={`max-w-[85%] whitespace-pre-wrap rounded-xl p-3 text-sm leading-relaxed ${m.role === "user" ? "self-end bg-gradient-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>{m.text}</div>
+      <Panel title="✳  Codebase Mentor" right={<Tag>AI-powered</Tag>}>
+        <div className="flex h-[560px] flex-col gap-3 overflow-auto p-4">
+          {!chat.length && <div className="max-w-[85%] rounded-xl bg-secondary p-3 text-sm">Hey! 👋 I've read every loaded file. Ask me to explain the project, a file, how things connect, or where bugs might be.</div>}
+          {chat.map((m, i) => m.role === "user" ? (
+            <div key={i} className="max-w-[85%] self-end whitespace-pre-wrap rounded-xl bg-gradient-primary p-3 text-sm text-primary-foreground">{m.text}</div>
+          ) : (
+            <div key={i} className="mentor-md max-w-full text-sm leading-relaxed text-secondary-foreground">
+              {m.text ? <ReactMarkdown>{m.text}</ReactMarkdown> : <span className="animate-pulse text-muted-foreground">Reading your code…</span>}
+            </div>
           ))}
         </div>
         <form className="flex gap-2 border-t border-border p-3" onSubmit={(e) => { e.preventDefault(); if (v.trim()) { ask(v.trim()); setV(""); } }}>
