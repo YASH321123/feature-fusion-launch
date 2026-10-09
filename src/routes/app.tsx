@@ -19,7 +19,7 @@ type Tab = keyof typeof TABS;
 
 export const Route = createFileRoute("/app")({
   validateSearch: (s: Record<string, unknown>): { tab: Tab } => ({
-    tab: (s.tab as string) in TABS ? (s.tab as Tab) : "overview",
+    tab: (s["tab"] as string) in TABS ? (s["tab"] as Tab) : "overview",
   }),
   head: () => ({
     meta: [
