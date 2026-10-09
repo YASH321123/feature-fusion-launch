@@ -214,7 +214,7 @@ function Files({ files, current, setCurrent, ask }: Ctx & { setCurrent: (f: stri
         <Panel title={<span className="truncate">◈ {f}</span>} right={<Btn className="px-2.5 py-1.5 text-xs" onClick={() => { navigator.clipboard?.writeText(code); toast.success("Source copied"); }}>Copy</Btn>}>
           <div className="flex justify-between border-b border-border px-4 py-2 text-xs text-muted-foreground"><span>{langOf(f)}</span><span>{code.split("\n").length} lines</span></div>
           <pre className="max-h-[420px] overflow-auto bg-code p-4 font-mono text-xs leading-6 text-muted-foreground">
-            {code.split("\n").map((l, i) => <div key={i} className="min-w-max"><span className="inline-block w-9 select-none pr-4 text-right opacity-40">{i + 1}</span><Highlight line={l} /></div>)}
+            {code.split("\n").map((l: string, i: number) => <div key={i} className="min-w-max"><span className="inline-block w-9 select-none pr-4 text-right opacity-40">{i + 1}</span><Highlight line={l} /></div>)}
           </pre>
           <div className="p-4">
             <div className="rounded-lg border border-primary/30 bg-accent p-3 text-xs leading-relaxed text-accent-foreground"><b>Mentor note:</b> {ex.short}</div>
@@ -259,7 +259,7 @@ function Chat({ chat, ask }: Ctx & { chat: Msg[] }) {
 function Graph({ files, openFile }: Ctx) {
   const { names, edges } = useMemo(() => graph(files), [files]);
   const cols = Math.min(4, Math.max(1, Math.ceil(Math.sqrt(names.length))));
-  const pos = Object.fromEntries(names.map((n, i) => [n, { x: 30 + (i % cols) * 170, y: 30 + Math.floor(i / cols) * 80 }]));
+  const pos = Object.fromEntries(names.map((n: string, i: number) => [n, { x: 30 + (i % cols) * 170, y: 30 + Math.floor(i / cols) * 80 }])) as Record<string, { x: number; y: number }>;
   const W = 30 + cols * 170, H = 40 + Math.ceil(names.length / cols) * 80;
   return (
     <Panel title="⌁  Import relationship graph" right={<Tag>{edges.length} links</Tag>}>
